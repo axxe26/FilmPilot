@@ -170,8 +170,3 @@ Copia la clave generada y reemplaza `tu_secret_key_de_django` en el archivo `.en
 - Autor: Angely Cabreja (axxe26)
 - Año: 2026
 - Licencia: Copyright propio
-
-## 12. Usuario Demo
-
-- Username: Demo
-- Contraseña:Demo1234
