@@ -1,0 +1,403 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Titulo de la aplicacion-->
+    <title>FilmPilot</title>
+    <!--Hoja de estilos-->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!--Favicon 1.0-->
+    <link rel="icon" href="{% static 'img/icono_zoom.ico' %}" alt="Logo">
+</head>
+
+<body>
+    {% if messages %}
+    <!--Muestra mensaje(pop-up) enviados desde Django (registro, login, errores, etc)-->
+        <div class="alert-container">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">
+                    <span>{{ message }}</span>
+                    <!--Boton para cerrar la alerta-->
+                    <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <!--Seccion principal de bienvenida-->
+    <section class="hero">
+        <!--Fondos para el efecto de transicion-->
+        <div class="hero-bg"></div>
+        <div class="hero-bg next"></div>
+        <header>
+            <!--Navbar-->
+            <nav class="navbar">
+                <div class="nav-container">
+                    <!--Logo-->
+                    <h1 class="logo-title">FilmPilot</h1>
+                    <!--Menu de navegacion-->
+                    <ul class="nav-links">
+                        <li><a href="#top-movies-id">Movies</a></li>
+                        <li><a href="#top-tv-id">TV Series</a></li>
+                        <li><a href="#genre-id">Genres</a></li>
+                    </ul>
+                    <!--Barra de busqueda-->
+                    <div class="search-container">
+                        <input type="text" class="search-box" placeholder="Search...">
+                    </div>
+                    <!--Boton para abrir modal de iniciar sesion (Login_)-->
+                    <div class="auth-login-btn">
+                        <button id="openLoginModal" class="log-in-btn">Login</button>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <!--Contenido principal-->
+        <div class="content">
+            <h1>Movies, series, and recommendations made <br>for you </h1>
+            <h2>Track what you watch, discover what’s next</h2>
+            <p>Sign up now to get started</p>
+            <!--Boton para crear cuenta-->
+            <div class="auth-sign-up-btn">
+                <button class="sign-up-btn" id="openModal">
+                    Get Started―it's free!
+                </button>
+            </div>
+        </div>
+        <!--Formulario para crear una cuenta nueva-->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal-box">
+                <header class="modal-header">
+                    <div class="header-top">
+                        <h2>Create Account</h2>
+                        <button class="close-icon-btn" id="closeModalUp">&times;</button>
+                    </div>
+                    <p>Manage your personal information</p>
+                </header>
+
+
+                <!--Formulario de registro-->
+                <form method="POST" action="{% url 'register' %}" enctype="multipart/form-data" class="modal-form">
+                    {% csrf_token %}
+                    <!--Imagen de perfil-->
+                    <div class="profile-picture">
+                        <img src="/static/img/usericon.png"
+                            alt="Profile Picture Preview"
+                            id="profilePicturePreview"
+                            class="profile-picture-preview"
+                        >  
+                        <button type="button" id="change-picture-btn">
+                            Click to change your profile photo
+                        </button>   
+                        <!--Selector de imagen-->
+                        <input 
+                            type="file"
+                            name="profile_picture"
+                            accept="image/*" 
+                            id="profilePicture"
+                            style="display: none;"
+                        >
+
+                    </div>
+                    <!--Informacion personal-->
+                    <div class="section-title">
+                        <img  src="{% static 'img/people.png' %}" alt="Person Icon" class="person-icon"> 
+                        <h3>Personal information</h3>
+                    </div>
+                    <!--Nombre y apellido-->
+                    <div class="name-container">
+                        <div class="field">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" name="first_name" class="input" placeholder="First Name" required>
+                        </div>
+                        <div class="field">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" name="last_name" class="input" placeholder="Last Name" required>
+                        </div>
+                    </div>
+                    <!--Datos de la cuenta (email, username, bibliografia)-->
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" class="input" placeholder="Email" required>
+
+                    <label for="username">Username <span class="required">*</span></label>
+                    <input type="text" id="username" name="username" class="input" placeholder="Username" required>
+
+                    <label for="about-me">About Me</label>
+                    <textarea id="about-me" name="about_me" class="input" placeholder="Tell us about yourself..." rows="4"></textarea>
+
+                    <div class="divider"></div>
+
+                    <!--Seguridad-->
+                    <div class="section-title">
+                        <img  src="{% static 'img/lock.png' %}" alt="Lock Icon" class="lock-icon"> 
+                        <h3>Account security</h3>
+                    </div>
+                    <!--Contraseñas-->
+                    <label for="password">Password <span class="required">*</span></label>
+                    <input type="password" id="password" name="password" class="input" placeholder="Password" required>
+                    <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                    <input type="password" id="confirmPassword" name="confirm_password" class="input" placeholder="Confirm Password" required>
+
+                    <div class="divider"></div>
+                    <!--Preferencias del usuario-->
+                    <div class="section-title">
+                        <h3>Preferences</h3>
+                    </div>
+                    
+                    <label for="recommendation" class="checkbox-label">
+                        <input type="checkbox" id="recommendation" name="recommendation" class="checkbox">
+                        Receive personalized recommendations
+                    </label>
+
+                    <label for="newsletter" class="checkbox-label">
+                        <input type="checkbox" id="newsletter" name="newsletter" class="checkbox">
+                        Notify me about new releases and updates
+                    </label>
+
+                    <label for="privacy" class="checkbox-label">
+                        <input type="checkbox" id="privacy" name="privacy" class="checkbox" required>
+                        I agree to the <a href="#">Privacy Policy</a>
+                    </label>
+
+                    <div class="button-container">
+                        <button type="submit" class="submit-btn">Create Account</button>
+                        <button type="button" class="cancel-btn" id="closeModal">Cancel</button>
+                    </div>
+
+                </form> 
+            </div>
+        </div> 
+        <!--Formulario para iniciar sesion-->
+        <div class="login-modal-overlay" id="loginModalOverlay">
+            <div class="login-modal-box">
+                <header class="modal-header">
+                    <div class="header-top">
+                        <h2>Welcome Back!</h2>
+                        <button class="close-icon-btn" id="closeLoginModal">&times;</button>
+                    </div>
+                    <p>Enter your credentials to access your account</p>
+                </header>
+
+                <form method="POST" action="{% url 'login' %}" class="modal-form">
+                    {% csrf_token %}
+
+                
+                    <label for="loginUsername">Username or Email</label>
+                    <input type="text" id="loginUsername" name="username" class="input" placeholder="Username or Email" required>
+
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" class="input" placeholder="Password" required>
+
+                    <div class="button-container">
+                        <button type="submit" class="submit-btn">Log In</button>
+                        <button type="button" class="cancel-btn" id="closeLoginModalBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>  
+        </div>
+            
+    </section>
+
+   
+    <!--Funciones principales de FilmPilot-->
+    <section class="featured-section">
+        <h2>Why choose FilmPilot?</h2>
+        <div class="feature-container">
+            <div class="card">
+                <h3>Track everything you watch</h3>
+                <p>Build your personal viewing history and never lose track of what you’ve seen</p>
+                <i data-lucide="eye"></i>
+            </div>
+
+            <div class="card">
+                <h3>Rate and review content</h3>
+                <p>Capture your opinions with ratings and quickly spot your favorites</p>
+                <i data-lucide="star"></i>
+            </div>
+
+            <div class="card">
+                <h3>Get smart recommendations</h3>
+                <p>Discover content tailored to your taste with intelligent, personalized suggestions</p>
+                <i data-lucide="brain"></i>
+            </div>
+
+            <div class="card">
+                <h3>Organize your watchlists</h3>
+                <p>Curate your own collections with custom lists for every mood and moment</p>
+                <i data-lucide="folder"></i>
+            </div>
+
+            <div class="card">
+                <h3>See your stats and progress</h3>
+                <p>Gain insights into your habits and track your viewing journey over time</p>
+                <i data-lucide="bar-chart-2"></i>
+            </div>
+
+            <div class="card">
+                <h3>Explore new content</h3>
+                <p>Find movies and series that match your interests and expand your watchlist</p>
+                <i data-lucide="compass"></i>
+            </div>
+
+        </div>
+       
+    </section>
+    <!--Carruseles con el Top 10 de peliculas y series-->
+    <section class="top-section">      
+        <div class="top-container">
+
+            <div class = "top-movies" id="top-movies-id">
+                <h2>Top 10 Movies</h2>
+
+                <div class="carousel-wrapper">
+
+                    <div class="hover-zone left-zone"></div>
+                    <div class="hover-zone right-zone"></div>
+
+                    <div class="arrow left-arrow">&#10094;</div>
+                    <div class="arrow right-arrow">&#10095;</div>
+
+                    <div class="carousel" id="movies-carousel">
+                        <div class="carousel-track">
+                            {% for movie in movies %}
+                                <div class="movie-item">
+                                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class = "top-tv" id="top-tv-id">
+                <h2>Top 10 TV Series</h2>
+                
+                    
+                <div class="carousel-wrapper">
+                    <div class="hover-zone left-zone"></div>
+                    <div class="hover-zone right-zone"></div>
+
+                    <div class="arrow left-arrow">&#10094;</div>
+                    <div class="arrow right-arrow">&#10095;</div>
+
+                    <div class="carousel" id="tv-carousel">
+                        <div class="carousel-track">
+                            {% for show in tv_series %}
+                                <div class="tv-item">
+                                    <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                                </div>
+                            {% endfor %}
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Permite explorar contenido por genero-->
+    <section>
+        <div class="genre-wrapper" id="genre-id">
+            <h2>Discover the best content in...</h2>
+            <div class="genre-content">
+                <div id="genreMenu" class="genre-menu">
+                    {% for genre in genres %}
+                        <span
+                            class="genre-item {% if forloop.first %}active{% endif %}"
+                            data-id="{{ genre.id }}">
+                            {{ genre.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+                <div class="genre-arrow left">❮</div>
+                <div class="genre-arrow right">❯</div>
+            </div>
+        </div>
+        <!-- Contenido cargado dinámicamente mediante JavaScript -->
+
+        <div id="content-grid" class="grid-container"></div>
+        
+    </section>
+
+    
+     <!--Footer-->
+    <footer class="footer">
+
+        <div class="footer-inner">
+
+            <div class="brand-block">
+                <p class="brand">FILM<span>PILOT</span></p>
+                <p>Your entertainment, perfectly organized.</p>
+
+                <div class="socials">
+                    <a href="https://www.instagram.com/angie.eb26/" aria-label="Instagram"><img src="{% static 'img/instagram-icon.png' %}" width="34" height="34" alt="Instagram"></a>
+                    <a href="https://www.facebook.com" aria-label="Facebook"><img src="{% static 'img/facebook-icon.png' %}" width="34" height="34" alt="Facebook"></a>
+                    <a href="https://github.com/axxe26" aria-label="GitHub"><img src="{% static 'img/github-icon.png' %}" width="34" height="34" alt="GitHub"></a>
+                    <a href="https://www.linkedin.com/in/angely-e-cabreja-burgos-07aa2a215/" aria-label="LinkedIn"><img src="{% static 'img/linkdin-icon.png' %}" width="34" height="34" alt="LinkedIn"></a>
+                    <a href="#" aria-label="Discord"><img src="{% static 'img/discord-icon.png' %}" width="34" height="34" alt="Discord"></a>
+                </div>
+            </div>
+
+            <div class="link-col">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#">Genres</a></li>
+                    <li><a href="#">trending</a></li>
+                    <li><a href="#">releases</a></li>
+                    <li><a href="#">my content</a></li>
+                </ul>
+            </div>
+
+            <div class="link-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </div>
+
+            <div class="link-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+        
+        
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FILMPILOT, Axxe26 developer. All rights reserved.</p>
+                <select class="language-select" aria-label="language and region">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+        </div>
+       
+
+    </footer>
+  <!--Variables JavaScript-->
+    <script>
+        // Imagenes para fondo dinamico
+        const images = [
+            "{% static 'img/projecthailmy.jpg' %}",
+            "{% static 'img/theboys.jpg' %}",
+            "{% static 'img/avatar.jpg' %}",
+            "{% static 'img/mariogalaxy.png' %}",
+            "{% static 'img/frieren.jpg' %}",
+            
+        ];
+    </script>
+    <!--Libreria de iconos-->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
+    <!--JavaScript principal-->
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

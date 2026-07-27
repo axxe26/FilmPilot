@@ -1,0 +1,1150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmpilot</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+</head>
+<body>
+
+     <!-- Este archivo controla toda la interacción del dashboard:
+    
+    // Navegación entre secciones
+    // Cambio entre Movies, TV Shows y Anime
+    // Carruseles
+    // Búsqueda global
+    // Filtros dinámicos
+    // Modal de perfil
+    // Historial reciente
+    // Sidebar -->
+    <aside class="sidebar">
+        <div class="logo" id="toggle-sidebar">
+            <span class="accent"></span>
+            <span class="logo-text">FILMPILOT</span>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#" data-section="home-section">
+                        <img src="/static/img/home-icon.png" width="20px">
+                        <span class="menu-text">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="my-content-section">
+                        <img src="/static/img/icon-bookmark.png" width="22px">
+                        <span class="menu-text">My Content</span>
+                   
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="recommendations-section">
+                        <img src="/static/img/icon-star.png" width="22px">
+                        <span class="menu-text">Recommendations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="stats-section">
+                        <img src="/static/img/icon-graph.png" width="22px">
+                        <span class="menu-text">Statistics</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="close-app">
+                <a href="{% url 'logout' %}" class="log-out">
+                    <img src="{% static 'img/icon-exit.png' %}" width="23" alt="icon exit">
+                    <span class="log-out-text">Log out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <section id="home-section" class="section active">
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <div class="nav-left">
+                        <ul>
+                            <li><a href="#" class="nav-link" data-media="movies">Movies</a></li>
+                            <li><a href="#" class="nav-link" data-media="tv">TV Shows</a></li>
+                            <li><a href="#" class="nav-link" data-media="anime">Anime</a></li>
+                        </ul>
+                        <div class="search-container">
+                            <button class="search-btn" id="search-btn">
+                                <img src="/static/img/icon-search.png" width="20px">
+                            </button>
+
+                            <input 
+                                type="text"
+                                class="search-input"
+                                id="search-input"
+                                placeholder="Search movies, TV shows...">
+                        </div>
+                    </div>
+                    <div class="nav-right">
+                        <div class="user-profile" id="openProfileModal">
+                            {% if user.userprofile.profile_picture %}
+                                <img src="{{user.userprofile.profile_picture.url}}" class="user-img">
+                            {%else%}
+                                <img src="{% static 'img/usericon.png' %}" class="user-img">
+                            {%endif%}
+                            <div class="user-info">
+
+                                <span class="user-name">{{user.username}} <img class="icons-down-arrow" src="/static/img/icons-down-arrow.png" width="22px" alt="Down arrow icon indicating a dropdown menu next to the username in the top navigation bar, neutral UI control"></span>
+                        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div id="home-dashboard">
+            
+                <div class="content-container">
+                        <!-- Cambia automáticamente el contenido destacado. -->
+                        <div class="content-grid">
+                        <div class="featured-grid">
+                                <div class="featured-card active" id="featured-card">
+                                    <img id="featured-img">
+                                    <div class="overlay">
+                                        <h2 id="featured-title"></h2>
+                                        <p id="featured-genres"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="recent-card">
+                                <header class="recent-card-header">
+                                    <h3>Recent Activity</h3>
+
+                                    <div style="position: relative;">
+                                        <div class="dots-btn" id="dropdownBtn">
+                                            <img src="/static/img/icon-menu-vertical.png" width="20px">
+                                        </div>
+
+                                        <div class="dropdown-menu" id="dropdownMenu">
+                                            <button class="dropdown-item danger" id="clearHistoryBtn">
+                                                Clear History
+                                            </button>
+                                        </div>
+                                    </div>
+                                </header>
+                            
+
+                               <div class="recent-item">
+                                    {% for activity in recent_activity %}
+                                        <div
+                                            class="recent-entry"
+                                            data-id="{{ activity.tmdb_id }}"
+                                            data-type="{{ activity.media_type }}"
+                                            data-date="{{ activity.date|date:'c' }}"
+                                        >
+                                            <img
+                                                class="recent-poster"
+                                                src="https://image.tmdb.org/t/p/w92{{ activity.poster_path }}"
+                                                alt="{{ activity.title }}"
+                                            >
+
+                                            <div class="recent-info">
+                                                <p class="recent-title">{{ activity.title }}</p>
+                                                <p class="recent-action">{{ activity.action }}</p>
+
+                                                <div class="recent-stars">
+                                                    {% for i in "12345" %}
+                                                        <span class="{% if activity.type == 'rating' and forloop.counter <= activity.rating %}rstar-active{% else %}rstar-inactive{% endif %}">★</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+
+                                            <span class="recent-emoji">{{ activity.emoji }}</span>
+                                        </div>
+                                    {% empty %}
+                                        <p class="no-activity">No activity yet 🎬</p>
+                                    {% endfor %}
+                                </div>
+
+                               
+                            </div>
+                        </div>
+                    </div>
+            
+
+                   <!-- Controla el cambio entre Movies, TV Shows y Anime. -->
+                    <div class="top-section">      
+                        <div class="top-container">
+
+                            <div class = "top-movies">
+                                <h2>Popular Movies</h2>
+
+                                <div class="carousel-wrapper">
+
+                                    <div class="hover-zone left-zone"></div>
+                                    <div class="hover-zone right-zone"></div>
+
+                                    <div class="arrow left-arrow">&#10094;</div>
+                                    <div class="arrow right-arrow">&#10095;</div>
+
+                                    <div class="carousel">
+                                        <div class="carousel-track">
+                                            {% for movie in movies %}
+                                                <div 
+                                                    class="movie-item"
+                                                    data-id="{{ movie.id }}"
+                                                    data-type="movie"
+                                                >
+                                                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        
+
+                            <div class = "top-movies-week">
+                                <h2>Trending Movies This Week</h2>
+                                <div class="carousel-wrapper">
+
+                                    <div class="hover-zone left-zone"></div>
+                                    <div class="hover-zone right-zone"></div>
+
+                                    <div class="arrow left-arrow">&#10094;</div>
+                                    <div class="arrow right-arrow">&#10095;</div>
+
+                                    <div class="carousel">
+                                        <div class="carousel-track">
+                                            {% for movie in trending_movies %}
+                                                <div 
+                                                    class="movie-item"
+                                                    data-id="{{ movie.id }}"
+                                                    data-type="movie"
+                                                >
+                                                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class = "top-tv">
+                                <h2>Popular TV Series</h2>
+                                
+                                    
+                                <div class="carousel-wrapper">
+                                    <div class="hover-zone left-zone"></div>
+                                    <div class="hover-zone right-zone"></div>
+
+                                    <div class="arrow left-arrow">&#10094;</div>
+                                    <div class="arrow right-arrow">&#10095;</div>
+
+                                    <div class="carousel">
+                                        <div class="carousel-track">
+                                            {% for show in tv_series %}
+                                                <div 
+                                                    class="tv-item"
+                                                    data-id="{{ show.id }}"
+                                                    data-type="tv"
+                                                >
+                                                    <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                                                </div>
+                                            {% endfor %}
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class = "top-tv-week">
+                                <h2>Trending TV Series This Week</h2>
+                                    
+                                <div class="carousel-wrapper">
+                                    <div class="hover-zone left-zone"></div>
+                                    <div class="hover-zone right-zone"></div>
+
+                                    <div class="arrow left-arrow">&#10094;</div>
+                                    <div class="arrow right-arrow">&#10095;</div>
+
+                                    <div class="carousel">
+                                        <div class="carousel-track">
+                                            {% for show in trending_tv %}
+                                                <div 
+                                                    class="tv-item"
+                                                    data-id="{{ show.id }}"
+                                                    data-type="tv"
+                                                >
+                                                    <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                                                </div>
+                                            {% endfor %}
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+             <!-- Filtra películas por género, popularidad, fecha y búsqueda. -->
+                <section id="movies-content" class="media-content">
+                    <nav class="media-nav">
+                        <div class="filters-bar">
+                            <div class="filter-group">
+                                <label>Genres</label>
+
+                                <select id="genre-filter" class="media-select">
+                                    <option value="">All Genres</option>
+
+                                    {% for genre_id, genre_name in genres.items %}
+                                        <option value="{{ genre_id }}">
+                                            {{  genre_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label>Popularity</label>
+
+                                 <select id="popularity-filter" class="media-select">
+                                    <option value="">Popularity</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+
+                                <label>Release Date</label>
+
+                                <select id="release-date-filter" class="media-select">
+                                    <option value="">Release Date</option>
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Oldest</option>
+                                </select>
+
+                                
+                                <label>Upcoming</label>
+
+                                <select id="upcoming-filter" class="media-select">
+                                    <option value="">Upcoming</option>
+                                    <option value="">Coming Soon</option>
+                                    <option value="">Later Releases</option>
+                                </select>
+
+                                <div class="search-movies-container">
+                                    <img src="/static/img/icon-search.png" width="20px">
+                            
+
+                                    <input 
+                                        type="text"
+                                        class="search-movie-select"
+                                        id="search-movies-input"
+                                        placeholder="Search movies...">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="movies-selection-container" class="movies-grid"></div>
+                        
+                    </nav>
+                    
+
+                </section>
+                <!-- Filtra series por género, popularidad, fecha y búsqueda. -->
+                <section id="tv-content" class="media-content">
+                       <nav class="media-nav">
+                        <div class="filters-bar">
+                            <div class="filter-group">
+                                <label>Genres</label>
+
+                                <select id="tv-genre-filter" class="media-select">
+                                    <option value="">All Genres</option>
+
+                                    {% for genre_id, genre_name in tv_genres.items %}
+                                        <option value="{{ genre_id }}">
+                                            {{  genre_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label>Popularity</label>
+
+                                 <select id="tv-popularity-filter" class="media-select">
+                                    <option value="">Popularity</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+
+                                <label>Release Date</label>
+
+                                <select id="tv-release-date-filter" class="media-select">
+                                    <option value="">Release Date</option>
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Oldest</option>
+                                </select>
+
+                                
+                                <label>Upcoming</label>
+
+                                <select id="tv-upcoming-filter" class="media-select">
+                                    <option value="">Upcoming</option>
+                                    <option value="">Coming Soon</option>
+                                    <option value="">Later Releases</option>
+                                </select>
+
+                                <div class="search-tv-container">
+                                    <img src="/static/img/icon-search.png" width="20px">
+                            
+
+                                    <input 
+                                        type="text"
+                                        class="search-tv-select"
+                                        id="search-tv-input"
+                                        placeholder="Search TV shows...">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="tv-selection-container" class="tv-grid"></div>
+                        
+                    </nav>
+
+                </section>
+                <!-- Filtra anime por diferentes criterios. -->
+                <section id="anime-content" class="media-content">
+
+                     <nav class="media-nav">
+                        <div class="filters-bar">
+                            <div class="filter-group">
+                                <label>Genres</label>
+
+                                <select id="anime-genre-filter" class="media-select">
+                                    <option value="">All Genres</option>
+
+                                    {% for genre_id, genre_name in anime_genres.items %}
+                                        <option value="{{ genre_id }}">
+                                            {{  genre_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label>Popularity</label>
+
+                                 <select id="anime-popularity-filter" class="media-select">
+                                    <option value="">Popularity</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+
+                                <label>Release Date</label>
+
+                                <select id="anime-release-date-filter" class="media-select">
+                                    <option value="">Release Date</option>
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Oldest</option>
+                                </select>
+
+                                
+                                <label>Upcoming</label>
+
+                                <select id="anime-upcoming-filter" class="media-select">
+                                    <option value="">Upcoming</option>
+                                    <option value="">Coming Soon</option>
+                                    <option value="">Later Releases</option>
+                                </select>
+
+                                <div class="search-anime-container">
+                                    <img src="/static/img/icon-search.png" width="20px">
+                            
+
+                                    <input 
+                                        type="text"
+                                        class="search-anime-select"
+                                        id="search-anime-input"
+                                        placeholder="Search TV shows...">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="anime-selection-container" class="anime-grid"></div>
+                        
+                    </nav>
+
+                </section>
+            
+        </section>
+
+        <!--Seccion de mi contenido-->
+        <section id="my-content-section" class="section">
+            
+            <header class="header-my-content">
+                <div class="welcome">
+                    <h2>Welcome
+                         <span class="span-unsername">{{user.username}}</span>
+                        !
+                    </h2>
+                </div>
+
+                <div class ="currently-watching">
+                    <h2>Currently Watching</h2>
+                                    
+                        <div class="carousel-wrapper">
+                            <div class="hover-zone left-zone"></div>
+                            <div class="hover-zone right-zone"></div>
+
+                            <div class="arrow left-arrow">&#10094;</div>
+                            <div class="arrow right-arrow">&#10095;</div>
+
+                            <div class="carousel">
+                                <div class="carousel-track">
+                                    {% for show in currently_watching %}
+                                        <div 
+                                            class="tv-item"
+                                            data-id="{{ show.tmdb_id }}"
+                                            data-type="tv"
+                                        >
+                                            <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                                            <!--<div class="show-progress">
+                                                <p>{{ show.name }}</p>
+                                                <p>{{ show.episodes_watched }} / {{ show.total_episodes }} eps</p>
+                                            </div> -->
+                                        </div>
+                                    {% empty %}
+                                        <p class="no-current-series">No series in progress yet.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <div class ="completed">
+                    <h2>Completed Series</h2>
+                                    
+                        <div class="carousel-wrapper">
+                            <div class="hover-zone left-zone"></div>
+                            <div class="hover-zone right-zone"></div>
+
+                            <div class="arrow left-arrow">&#10094;</div>
+                            <div class="arrow right-arrow">&#10095;</div>
+
+                            <div class="carousel">
+                                <div class="carousel-track">
+                                    {% for show in completed_series %}
+                                        <div 
+                                            class="tv-item"
+                                            data-id="{{ show.tmdb_id }}"
+                                            data-type="tv"
+                                        >
+                                            <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                                            <!--<div class="show-progress">
+                                                <p>{{ show.name }}</p>
+                                                <p>{{ show.episodes_watched }} / {{ show.total_episodes }} eps</p>
+                                            </div> -->
+                                        </div>
+                                    {% empty %}
+                                        <p class="no-completed-series">No completed series yet.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                
+                <div class="completed">
+                    <h2>Completed Movies</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for movie in completed_movies %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ movie.tmdb_id }}"
+                                        data-type="movie"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+                                            alt="{{ movie.title }}"
+                                        >
+                                    </div>
+                                {% empty %}
+                                    <p class="no-completed-movies">
+                                        No completed movies yet.
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="watchlist">
+                
+                    <h2>Watch Later</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in watchlist_items %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.tmdb_id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ movie.title }}"
+                                        >
+                                    </div>
+                                {% empty %}
+                                    <p class="no-watchlist">
+                                        No items in your watchlist yet.
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="favorites">
+                    <h2>Favorites</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in favorites_items %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.tmdb_id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ movie.title }}"
+                                        >
+                                    </div>
+                                {% empty %}
+                                    <p class="no-watchlist">
+                                        No items in your favorites yet.
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                            
+                            
+
+                
+            </header>
+
+        </section>
+         <!-- Seccion de recomendaciones inteligente-->
+        <section id="recommendations-section" class="section">
+
+             <h1 class="recommendations-title">🎯Recommended For You</h1>
+            <!--recomendaciones de peliculas y series para ti-->
+              <div class="recommended-all">
+                    <h2>🔥 Recommended For You</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in recommended_all %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.tmdb_id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ movie.title }}"
+                                        >
+                                    </div>
+                          
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!--recomendaciones de peliculas para ti-->
+              <div class="recommended-movies">
+                    <h2>🎬 Movies For You</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in recommended_movies %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ item.title }}"
+                                        >
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--recomendaciones de series para ti-->
+                 <div class="recommended-series">
+                    <h2>📺 TV Shows For You</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in recommended_tv %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ item.title }}"
+                                        >
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--recomendaciones en base a tus top en calificaciones-->
+                <div class="recommended-top-rated">
+                    <h2>⭐ Top Rated For You</h2>
+
+                    <div class="carousel-wrapper">
+                        <div class="hover-zone left-zone"></div>
+                        <div class="hover-zone right-zone"></div>
+
+                        <div class="arrow left-arrow">&#10094;</div>
+                        <div class="arrow right-arrow">&#10095;</div>
+
+                        <div class="carousel">
+                            <div class="carousel-track">
+
+                                {% for item in recommended_top_rated %}
+                                    <div
+                                        class="movie-item"
+                                        data-id="{{ item.tmdb_id }}"
+                                        data-type="{{ item.media_type }}"
+                                    >
+                                        <img
+                                            src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                            alt="{{ item.title }}"
+                                        >
+                                    </div>
+                          
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                            
+            
+        </section>
+
+        <!-- Seccion de estadistica-->
+        <section id="stats-section" class="section">
+
+
+            <h1 class="recommendations-title">📊 Your Stats</h1>
+
+            <div class="stats-grid">
+
+            <!-- Películas vistas -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Movies</p>
+                        <div class="stat-icon-box purple">
+                            <i data-lucide="film"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.movies_watched }}</h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item green">✅ {{ stats.movies_watched }} completed</span>
+                    </div>
+                </div>
+
+                <!-- Episodios -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Episodes</p>
+                        <div class="stat-icon-box blue">
+                            <i data-lucide="tv-2"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.total_episodes_watched }}</h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item green">✅ {{ stats.total_episodes_watched }} watched</span>
+                        <span class="stat-detail-item red">⏳ {{ stats.total_episodes_remaining }} remaining</span>
+                    </div>
+                </div>
+
+                <!-- Series -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Series</p>
+                        <div class="stat-icon-box green">
+                            <i data-lucide="clapperboard"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.total_series_completed }}</h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item green">✅ {{ stats.total_series_completed }} completed</span>
+                        <span class="stat-detail-item yellow">👁️ {{ stats.series_watching }} in progress</span>
+                    </div>
+                </div>
+
+                <!-- Rating promedio -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Average Rating</p>
+                        <div class="stat-icon-box yellow">
+                            <i data-lucide="star"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.average_rating }}<span class="stat-of">/5</span></h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item yellow">⭐ based on your ratings</span>
+                    </div>
+                </div>
+
+                <!-- Favoritos -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Favorites</p>
+                        <div class="stat-icon-box red">
+                            <i data-lucide="heart"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.total_favorites }}</h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item red">❤️ saved as favorite</span>
+                    </div>
+                </div>
+
+                <!-- Watchlist -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-label">Watchlist</p>
+                        <div class="stat-icon-box orange">
+                            <i data-lucide="bookmark"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-number">{{ stats.total_watchlist }}</h2>
+                    <div class="stat-detail">
+                        <span class="stat-detail-item yellow">🔖 saved to watch</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!--Graficos-->
+            <div class="charts-row">
+
+            <div class="chart-container">
+                <h3 class="chart-title">Most Watched Genres</h3>
+
+                {{ genre_labels|json_script:"genre-labels-data" }}
+                {{ genre_counts|json_script:"genre-counts-data" }}
+
+                <div style="position: relative; width: 100%; height: 320px;">
+                    <canvas id="genresChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title">Content Status</h3>
+
+                {{ status_labels|json_script:"status-labels-data" }}
+                {{ status_data|json_script:"status-counts-data" }}
+
+                <div style="position: relative; width: 100%; height: 320px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+
+        </section>
+    </main>
+
+    <!-- Profile Modal 
+     Abre y cierra el modal para editar el perfil.--> 
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-box">
+
+            <header class="modal-header">
+                <div class="header-top">
+                    <h2>Edit Account</h2>
+                    <button class="close-icon-btn" id="closeProfileModal">
+                        &times;
+                    </button>
+                </div>
+                <p>Update your personal information</p>
+            </header>
+
+            <form
+                method="POST"
+                action="{% url 'update_profile' %}"
+                enctype="multipart/form-data"
+                class="modal-form"
+            >
+                {% csrf_token %}
+
+                <div class="profile-picture">
+
+                    {% if user.userprofile.profile_picture %}
+                        <img src="{{ user.userprofile.profile_picture.url }}"
+                            alt="Profile Picture Preview"
+                            id="profilePicturePreview"
+                            class="profile-picture-preview"
+                        >
+                    {% else %}
+                        <img
+                            src="{% static 'img/usericon.png' %}"
+                            alt="Profile Picture Preview"
+                            id="profilePicturePreview"
+                            class="profile-picture-preview"
+                        >
+                    {% endif %}
+
+                    <button type="button" id="change-picture-btn">
+                        Click to change your profile photo
+                    </button>
+
+                    <input
+                        type="file"
+                        name="profile_picture"
+                        accept="image/*"
+                        id="profilePicture"
+                        hidden
+                    >
+                </div>
+
+                <div class="section-title">
+                    <img
+                        src="{% static 'img/people.png' %}"
+                        alt="Person Icon"
+                        class="person-icon"
+                    >
+                    <h3>Personal Information</h3>
+                </div>
+
+                <div class="name-container">
+
+                    <div class="field">
+                        <label for="firstName">
+                            First Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="first_name"
+                            class="input"
+                            value="{{ user.first_name }}"
+                            placeholder="First Name"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="lastName">
+                            Last Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="last_name"
+                            class="input"
+                            value="{{ user.last_name }}"
+                            placeholder="Last Name"
+                        >
+                    </div>
+
+                </div>
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    class="input"
+                    value="{{ user.email }}"
+                    placeholder="Email"
+                >
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    name="username"
+                    class="input"
+                    value="{{ user.username }}"
+                    placeholder="Username"
+                >
+
+                <label for="about-me">
+                    About Me
+                </label>
+
+                <textarea
+                    id="about-me"
+                    name="about_me"
+                    class="input"
+                >{{ user.userprofile.about_me }}</textarea>
+
+                <div class="divider"></div>
+
+                <div class="section-title">
+                    <img
+                        src="{% static 'img/lock.png' %}"
+                        alt="Lock Icon"
+                        class="lock-icon"
+                    >
+                    <h3>Account Security</h3>
+                </div>
+
+                <label for="current_password">
+                    Current Password
+                </label>
+
+                <input
+                    type="password"
+                    name="current_password"
+                    class="input"
+                    placeholder="Current Password"
+                >
+
+                <label for="new_password">
+                    New Password
+                </label>
+
+                <input
+                    type="password"
+                    name="new_password"
+                    class="input"
+                    placeholder="New Password"
+                >
+
+                <label for="confirm_new_password">
+                    Confirm New Password
+                </label>
+
+                <input
+                    type="password"
+                    name="confirm_new_password"
+                    class="input"
+                    placeholder="Confirm New Password"
+                >
+
+                <div class="divider"></div>
+
+                <div class="button-container">
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                    >
+                     <img src="/static/img/icon-save.png " width="22px"> Save Changes
+                    </button>
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        id="closeProfileModalBtn"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/charts.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script id="contente-data" type="application/json">
+
+        [
+            {% for item in combined %}
+            {
+                "title": "{{ item.title|escapejs }}",
+                "name": "{{ item.name|escapejs }}",
+                "genres": "{{ item.genres|escapejs }}",
+                "backdrop_path": "{{ item.backdrop_path }}",
+                "poster_path": "{{ item.poster_path }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    </script>
+
+    <script>const DEFAULT_POSTER = "{% static 'img/no_image.png'%}"</script>
+</body>
+</html>

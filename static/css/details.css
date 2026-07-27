@@ -1,0 +1,612 @@
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+
+body {
+    background-color: #121212!important;
+  
+}
+
+/* Hero, portada */
+
+.hero{
+    min-height: 70vh;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+
+    padding: 0 10px;
+}
+
+.redirect-dashboard {
+    display: flex;
+    justify-content: end;
+    align-items: flex-end;
+    padding: 20px 10px 0 0;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.hero-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 140px 78px;
+    
+
+}
+
+/* informacion del contenido */
+
+.poster {
+    display: block;
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    flex-shrink: 0;
+
+    border-radius: 10px;
+    transform: scale(1.07);
+    transition: transform 0.3s ease;
+}
+
+
+.info {
+    flex: 1;
+    min-width: 0;
+    color: white;
+    padding: 5px
+    
+}
+.info-header {
+    display: flex;
+    gap: 19px;
+    
+}
+
+.title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 45px;
+}
+
+/* Botones de acciones */
+
+.watch-list-btn {
+    background: none;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+    
+    transition: all 0.25s ease;
+}
+
+.favorites-btn {
+    background: none;
+    border: none;
+    margin-top: 8px;
+    cursor: pointer;
+    
+    transition: all 0.25s ease;
+}
+
+.watch-list-btn:hover,
+.favorites-btn:hover {
+    transform: translateY(-2px);
+}
+
+
+.tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    margin-top: 5px;
+
+}
+
+/* Sistema de calificacion */
+.rating{
+
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.star{
+    color: #555;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: .2s;
+
+}
+
+.star:hover {
+    transform: scale(1.1);
+}
+
+.star.active{
+    color: rgb(235, 199, 0);
+}
+
+/* Informacion adicional*/
+.container-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    margin-top: 13px;
+    font-size: 16px;
+}
+
+.rating-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.release-date-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.runtime-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+/* Generos */
+.genres{
+    
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+
+.genre {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 5px 12px;
+    border-radius: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.644);
+
+    white-space: nowrap;
+
+    transition: .1s;
+    
+}
+
+.genre:hover {
+    transform: scale(1.1); }
+
+
+.providers{
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+/* Proveedores de straming */
+.provider{
+    display: flex;
+    align-items: center;
+}
+
+.provider img {
+    width: 70px;
+    height: 60px;
+    border-radius: 15px;
+}
+
+
+/* Sipnosis */
+.overview-title{
+
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Trailer */
+.trailers {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 100px 80px;
+}
+
+.trailers h2 {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: white;
+    font-size: 25px;
+    text-align: start;
+    margin-bottom: 10px;
+}
+
+.trailers h2:hover {
+    color: rgb(139, 8, 8);
+}
+
+
+.trailer-preview {
+    position: relative;
+    width: 800px;
+
+}
+
+.trailer-preview img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 4.5rem;
+    color: white;
+    transform: translate(-50%, -50%);
+}
+
+.play-button:hover {
+    color: rgb(139, 8, 8);
+}
+
+/* Temporadas */
+.seasons-section {
+    max-width: 1750px;
+    margin: 0px auto;
+    color:  white;
+}
+
+.seasons-section h2 {
+    font-size: 25px;
+    margin-bottom: 50px;
+  
+}
+
+.seasons-section h2:hover {
+    color: rgb(139, 8, 8);
+}
+
+.season-card {
+    background: #181818;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.season-header {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.season-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+
+.season-left img {
+    width: 300px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.season-left h3 {
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+}
+
+
+.season-left p {
+    color: #b3b3b3;
+}
+
+.season-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.arrow {
+    font-size: 1.8rem;
+    transition: transform .3s ease;
+}
+.season-header.active .arrow{
+    transform: rotate(180deg);
+}
+
+.season-content {
+    display: none;
+    padding: 0 20px 20px;
+}
+
+.season-content.show {
+    display: block;
+}
+
+/* Episodios */
+.episode {
+    display: flex;
+    gap: 20px;
+    padding: 15px 0;
+    border-top: 1px solid #2a2a2a;
+}
+
+.episode img {
+    width: 300px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.episode-info h4 {
+    margin-bottom: 8px;
+}
+
+.episode-info p {
+    color: #b3b3b3;
+    margin-bottom: 10px;
+}
+
+.watch-season-btn {
+    margin-left: auto;
+    margin-right: 20px;
+    padding: 10px 10px;
+}
+
+.episode-watch-btn{
+    padding: 7px 10px;
+    margin-left: auto;
+}
+
+.watch-movie {
+    margin-top: 9px;
+}
+.watch-movie-btn {
+    padding: 9px 10px;
+}
+
+/* Botones de seguimiento */
+.watch-season-btn,
+.episode-watch-btn,
+.watch-movie-btn {
+    background:  rgb(207, 7, 7);
+    border: 1px solid rgb(199, 6, 6);
+    color: white;
+    border-radius: 999px;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+    
+    gap: 10px;
+
+    transition: all 0.25s ease;
+}
+
+.watch-season-btn:hover,
+.episode-watch-btn:hover,
+.watch-movie-btn:hover{
+    background: rgb(255, 1, 1);
+    border-color: #ff0101;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 1, 1, 0.25);
+}
+
+.watch-season-btn:active,
+.episode-watch-btn:active,
+.watch-movie-btn:active{
+    transform: scale(0.96);
+}
+
+/* estado visto */
+.watch-season-btn.watched,
+.episode-watch-btn.watched,
+.watch-movie-btn.watched {
+    background: rgb(2, 139, 20);
+    border-color: #028d19;
+    color: #ffffff;
+}
+
+
+/* Reparto */
+.cast-list h2 {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: white;
+    font-size: 25px;
+    text-align: start;
+    padding: 10px 80px;
+    margin-top: 50px;
+}
+
+.cast-list h2:hover {
+    color: rgb(139, 8, 8);
+}
+
+/* carousel-wrapper */
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.hover-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10%;
+    height:100%;
+    z-index: 5;
+}
+
+.left-zone {
+    left: 0;
+}
+
+.right-zone {
+    right: 0;
+}
+
+.arrow{ 
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); 
+
+    font-size: 27px;
+    color: white;
+
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 50%;
+
+    opacity: 0;
+    transition: 0.3s;
+
+
+    z-index: 10;
+    cursor: pointer;
+
+}
+
+.left-arrow {
+    left: 10px;
+}   
+
+.right-arrow {
+    right: 10px;
+}   
+
+.carousel-wrapper:hover .arrow {
+    opacity: 1;
+    color: rgb(139, 8, 8);
+}
+
+.carousel {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none; 
+
+    width: 100%;
+    padding: 40px 78px;
+}
+
+.carousel::-webkit-scrollbar {
+    display: none; 
+}
+
+.carousel-track {
+    display: flex;
+    gap: 20px;
+
+}
+
+
+.cast-item {
+    width: 200px;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.cast-item img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    transform: scale(1.07);
+    transition:  transform 0.3s ease;
+
+}
+
+.cast-item:hover img{
+    transform: scale(1);
+
+}
+
+.cast-item p{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: white;
+    padding-top: 20px;
+}
+
+/* Contenido similar */
+.similar-content h2 {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: white;
+    font-size: 25px;
+    text-align: start;
+    padding: 80px 80px 10px;
+}
+
+.similar-content h2:hover {
+    color: rgb(139, 8, 8);
+}
+
+.similar-content-item {
+    width: 230px;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.similar-content-item img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    transform: scale(1.07);
+    transition:  transform 0.3s ease;
+
+}
+
+.similar-content-item:hover img{
+    transform: scale(1);
+
+}
+

@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Titulo dinamico-->
+    <title>
+        {{ title }}
+    </title>
+    <!-- hoja de estilos --->
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
+    <!--Fuentes-->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <!--Contienes la informacion principal de la pelicula o serie-->
+    <section
+        class="hero"
+        style="
+        background-image: 
+        linear-gradient(
+            to bottom,
+            rgba(0,0,0,0) 50%,
+            rgba(0, 0, 0, 0.445) 70%,
+            rgba(0,0,0,1) 100%
+        ),
+        
+        url('https://image.tmdb.org/t/p/original{{ backdrop_path }}');"
+
+    >
+    <!--Boton para regresar al dashboard-->
+        <div class="redirect-dashboard">
+            <button
+                class="btn-back"
+                onclick='window.location.href="{% url "dashboard" %}"'
+                >
+                <img
+                    src="{% static 'img/icon-go-back.png' %}"
+                    width="38"
+                    alt="Back"
+                >
+            </button>
+        </div>
+
+        <div class="hero-content">
+
+        <!--Posters-->
+            <img
+                class="poster"
+                src="https://image.tmdb.org/t/p/w500{{ poster_path }}"
+                alt="{{ title}}"
+            >
+        <!--Informacion-->
+            <div class="info">
+
+                <div class="info-header">
+                    <!--titulo-->
+                    <h1 class="title">
+                        {{ title }}
+                    </h1>
+
+                    {% if media_type == "movie" %}
+
+                    <div class="watch-movie">
+                        <!--boton dinamico para cambiar el estado-->
+                        <button
+                            class="watch-movie-btn"
+                            data-movie="{{ tmdb_id }}"
+                        >
+                        To Watch
+                        </button>
+                    
+                    </div>
+                    {% endif %}
+                    <!--seccion de ver para despues-->
+                    <div class="watch-list">
+                        <button
+                            class="watch-list-btn"
+                            data-tmdb-id="{{ tmdb_id }}"
+                        >
+                            <img 
+                                class="watchlist-icon"
+                                src="{% static 'img/watchlist-inactive-icon.png' %}" 
+                                width="40" 
+                                alt="bookmark icon"
+                            >
+                        </button>
+                    </div>
+                    <!--seccion para favoritos-->
+                    <div class="favorites">
+                        <button
+                            class="favorites-btn"
+                            data-tmdb-id="{{ tmdb_id }}"
+                        >
+                            <img 
+                                class="favorite-icon"
+                                src="{% static 'img/favorite-inactive-icon.png' %}" 
+                                width="45" 
+                                alt="bookmark icon"
+                            >
+                        </button>
+                    </div>
+                </div>
+                <!--Frase de la pelicula o serie-->
+                <p class="tagline">
+                    {{ tagline }}
+                </p>
+                <!--Calificacion basado del 1 al 5 en estrellas-->
+                <div class="rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <!--calificacion global de la api-->
+                <div class="container-info">
+                    <p class="rating-total">
+                        <span class="rating-title">Rating</span>
+                        {{vote_average|floatformat:1}}
+                    </p>
+                    
+                    <p class="release-date">
+                        <span class="release-date-title">Release Date</span>
+                        {{release_date}}
+                    </p>
+                    <!--Duracion-->
+                    <p class="runtime">
+                        <span class="runtime-title">
+                            {% if media_type == "tv" %}
+                                Episodes
+                            {% else %}
+                                Runtime
+                            {% endif %}
+                        </span>
+
+                        <span class="episodes">
+                            {% if media_type == "tv" %}
+                                {{ number_of_episodes }}
+
+                            {% else %}
+                                {{ runtime }} min 
+
+                            {% endif %}
+
+                        </span>
+        
+                    </p>
+                </div>
+                <!--Genero-->
+                <p class="genres">
+                    {% for genre in genres %}
+                        <span class="genre {{ genre.name|lower }}">
+                            {{ genre.name }}
+                        </span>
+                    {% endfor %}
+                </p>
+                <!--Proveedores-->
+                <div class="providers">
+                    {% for provider in providers %}
+
+                        <div class="provider">
+                            <img
+                                src="https://image.tmdb.org/t/p/w92{{ provider.logo_path }}"
+                                alt="{{ provider.provider_name }}"
+                                title="{{ provider.provider_name }}"
+                            >
+                        </div>
+                    {% endfor %}
+                </div>
+                <!--Resumen-->
+                <p class="overview">
+                    <span class="overview-title">Overview</span>
+                    {{overview}}
+                </p>
+            </div>
+
+
+        </div>
+    
+    </section>
+    <!--Seccion de trailer-->
+
+    <div class="trailers">
+        <h2>▶ Watch Trailer</h2>
+
+       {% if trailer_key %}
+        <div class="trailer-preview">
+
+            <a
+                href="https://www.youtube.com/watch?v={{ trailer_key }}"
+                target="_blank"
+            >
+                <img
+                    src="https://img.youtube.com/vi/{{ trailer_key }}/maxresdefault.jpg"
+                    alt="Trailer Preview"
+                >
+
+                <div class="play-button">
+                    ▶
+                </div>
+
+            </a>
+
+        </div>
+        {% endif %}
+    </div>
+<!--Si es serie seccion de episodios y temporadas-->
+    {% if media_type == "tv" %}
+
+    <section class="seasons-section">
+
+        <h2>Episodes</h2>
+
+        {% for season in seasons %}
+
+        <div class="season-card">
+
+            <!-- HEADER CLICKABLE (dropdown) -->
+            <div
+                class="season-header"
+                data-season="{{ season.season_number }}"
+            >
+
+                <div class="season-left">
+
+                    <div class="season-info">
+
+                        {% if season.poster_path %}
+                        <img
+                            src="https://image.tmdb.org/t/p/w300{{ season.poster_path }}"
+                            alt="Season {{ season.season_number }}"
+                        >
+                        {% endif %}
+
+                        <div>
+                            <h3>Season {{ season.season_number }}</h3>
+                            <p>{{ season.episode_count }} Episodes</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Boton visto -->
+                    <button
+                        class="watch-season-btn"
+                        data-season="{{ season.season_number }}"
+                        data-episodes="{{ season.episode_count }}"
+                    >
+                       Watched season
+                    </button>
+
+                </div>
+
+                <span class="arrow">⌄</span>
+
+            </div>
+
+            <!-- Contenido episodios -->
+            <div
+                class="season-content"
+                id="season-{{ season.season_number }}"
+            ></div>
+
+        </div>
+
+        {% endfor %}
+
+    </section>
+
+    {% endif %}
+
+
+<!--Elenco de serie o pelicula-->       
+    <div class="cast-list">
+        <h2>Main Cast</h2>
+        <div class="carousel-wrapper">
+
+            <div class="hover-zone left-zone"></div>
+            <div class="hover-zone right-zone"></div>
+
+            <div class="arrow left-arrow">&#10094;</div>
+            <div class="arrow right-arrow">&#10095;</div>
+
+            <div class="carousel" id="cast-carousel">
+                <div class="carousel-track">
+                    {% for actor in cast %}
+                        <div 
+                            class="cast-item"
+                            data-id="{{ cast.id }}"
+                            data-type="cast"
+                        >
+                            <img 
+                                src="https://image.tmdb.org/t/p/w200{{ actor.profile_path }}"
+                                alt="{{ actor.name }}"
+                            >  
+                            
+                            <p>{{ actor.name }}</p>
+                                            
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+<!--Seccion de contenido similar-->
+    <div class="similar-content">
+        <h2>More Like This</h2>
+        <div class="carousel-wrapper">
+
+            <div class="hover-zone left-zone"></div>
+            <div class="hover-zone right-zone"></div>
+
+            <div class="arrow left-arrow">&#10094;</div>
+            <div class="arrow right-arrow">&#10095;</div>
+
+            <div class="carousel" id="similar-content-carousel">
+                <div class="carousel-track">
+                    {% for item in similar %}
+                        <div 
+                            class="similar-content-item"
+                            data-id="{{ similar.id }}"
+                            data-type="similar"
+                        >
+                            <img 
+                                src="https://image.tmdb.org/t/p/w500{{ item.poster_path }}"
+                                alt="{{ item.title }}"
+                            >  
+                                            
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Variables globales utilizadas por JavaScript --> 
+    <script>
+        const TMDB_ID = "{{ tmdb_id }}";
+    </script>
+
+
+    <script>
+        window.TMDB_ID = "{{ tmdb_id }}";
+        window.MEDIA_TYPE = "{{ media_type }}";
+        window.USER_RATING = {{ user_rating|default:0 }};
+    </script>
+    <!-- Lógica principal de la página -->
+    <script src="{% static 'js/details.js' %}"></script>
+</body>
+</html>
